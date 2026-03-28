@@ -9,13 +9,13 @@ module Partial_SumV3#(
     input wire sysres,
     input wire [10:0] i,
     input wire [4:0] s,
-    input wire U_0, //input U for writing
+    input wire U_input, //input U for writing
     input wire readEn,
     input wire writeEn,
     input wire COMPLETED,
     output reg isUpdating,
     output reg readComplete,
-    output reg U
+    output reg U_feedback
     );
 
 genvar z;
@@ -107,7 +107,7 @@ always@(posedge sysclk or negedge sysres) begin
         // dinb<= 31'd0;
         wea <= 1'b0;
         web <=1'b0;
-        U <= 1'b0;
+        U_feedback <= 1'b0;
         temp_douta <= 1'b0;
         temp_doutb <= 1'b0;
         ramPageCount <= 1'b0;
@@ -139,13 +139,13 @@ always@(posedge sysclk or negedge sysres) begin
                 count <= count + 1'b1;
             end
             if(DELAY2 == 1'b1) begin
-                U <= temp_douta[offset+count[4:0]];
+                U_feedback <= temp_douta[offset+count[4:0]];
             end
         end
         else begin
             ramPageCount<= 1'b0;
             count <= count;
-            U<=1'b0;
+            U_feedback<=1'b0;
             DELAY1 <= 1'b0;
         end
     end
@@ -154,7 +154,7 @@ always@(posedge sysclk or negedge sysres) begin
     else if (writeEn == 1'b1) begin 
         count <= 1'b0;
         stageAddrA[0] <= ramPage;
-        tempU[i[4:0]] <= U_0;
+        tempU[i[4:0]] <= U_input;
         wea <= 1'b0;
         web <= 1'b0;
         isUpdating <= 1'b1;
@@ -264,7 +264,7 @@ always@(posedge sysclk or negedge sysres) begin
                 ramPageCount <= ramPageCount + 1'b1;
             end
             if(DELAY1 == 1'b1) begin
-                U <= temp_douta[count[4:0]];
+                U_feedback <= temp_douta[count[4:0]];
                 count <= count + 1'b1;
             end
         end
@@ -280,7 +280,7 @@ always@(posedge sysclk or negedge sysres) begin
         DELAY1 <= 1'b0;
         DELAY2 <= 1'b0;
         DELAY3 <= 1'b0;
-        U <= 1'b0;
+        U_feedback <= 1'b0;
     end
 end
 

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_TOP_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_TOP" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="686314416667fs"></ZoomStartTime>
+      <ZoomEndTime time="686617916668fs"></ZoomEndTime>
+      <Cursor1Time time="686430000000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="177"></NameColumnWidth>
+      <ValueColumnWidth column_width="125"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="16" />
+   <wvobject fp_name="/tb_TOP/sysclk" type="logic">
+      <obj_property name="ElementShortName">sysclk</obj_property>
+      <obj_property name="ObjectShortName">sysclk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/sysres" type="logic">
+      <obj_property name="ElementShortName">sysres</obj_property>
+      <obj_property name="ObjectShortName">sysres</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/LLR" type="array">
+      <obj_property name="ElementShortName">LLR[7:0]</obj_property>
+      <obj_property name="ObjectShortName">LLR[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/ena" type="logic">
+      <obj_property name="ElementShortName">ena</obj_property>
+      <obj_property name="ObjectShortName">ena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/ADDR" type="array">
+      <obj_property name="ElementShortName">ADDR[10:0]</obj_property>
+      <obj_property name="ObjectShortName">ADDR[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/COMPLETED" type="logic">
+      <obj_property name="ElementShortName">COMPLETED</obj_property>
+      <obj_property name="ObjectShortName">COMPLETED</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/dout" type="array">
+      <obj_property name="ElementShortName">dout[1:0]</obj_property>
+      <obj_property name="ObjectShortName">dout[1:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/readComplete" type="array">
+      <obj_property name="ElementShortName">readComplete[1:0]</obj_property>
+      <obj_property name="ObjectShortName">readComplete[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/Qseq" type="logic">
+      <obj_property name="ElementShortName">Qseq</obj_property>
+      <obj_property name="ObjectShortName">Qseq</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/i" type="array">
+      <obj_property name="ElementShortName">i[10:0]</obj_property>
+      <obj_property name="ObjectShortName">i[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/s" type="array">
+      <obj_property name="ElementShortName">s[4:0]</obj_property>
+      <obj_property name="ObjectShortName">s[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/L_a" type="array">
+      <obj_property name="ElementShortName">L_a[1:0][7:0]</obj_property>
+      <obj_property name="ObjectShortName">L_a[1:0][7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/L_b" type="array">
+      <obj_property name="ElementShortName">L_b[1:0][7:0]</obj_property>
+      <obj_property name="ObjectShortName">L_b[1:0][7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/sel_g" type="logic">
+      <obj_property name="ElementShortName">sel_g</obj_property>
+      <obj_property name="ObjectShortName">sel_g</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/CONTROL" type="array">
+      <obj_property name="ElementShortName">CONTROL[0:10][1:0]</obj_property>
+      <obj_property name="ObjectShortName">CONTROL[0:10][1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/DONE" type="array">
+      <obj_property name="ElementShortName">DONE[0:10][1:0]</obj_property>
+      <obj_property name="ObjectShortName">DONE[0:10][1:0]</obj_property>
+   </wvobject>
+</wave_config>

@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module Ram_Stage0 #(   
+module LLR_RAM #(   
     localparam S_IDLE = 2'd0,
     localparam S_WRITE = 2'd1,
     localparam S_READ = 2'd2,

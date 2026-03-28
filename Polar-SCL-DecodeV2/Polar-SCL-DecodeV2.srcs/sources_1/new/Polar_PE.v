@@ -4,7 +4,7 @@ module Polar_PE(
     input wire sysres,
     input wire signed [7:0] L_a,
     input wire signed [7:0] L_b,
-    input wire U_0,
+    input wire U_feedback,
     input wire sel_g,
     output wire signed [7:0] L_out
     );
@@ -22,7 +22,7 @@ wire signed [7:0] f_result = (L_a[7] ^ L_b[7]) ?
                   ((min_abs_9 == 9'd128) ? -8'sd128 : -min_abs_9[7:0]) : 
                   ((min_abs_9 == 9'd128) ? 8'sd127  : min_abs_9[7:0]);
 
-wire signed [8:0] g_temp = (U_0 == 1'b1) ? (L_b - L_a) : (L_b + L_a);
+wire signed [8:0] g_temp = (U_feedback == 1'b1) ? (L_b - L_a) : (L_b + L_a);
 
 wire signed [7:0] g_result;
 

@@ -8,8 +8,8 @@ wire [7:0] LLR;
 reg ena;
 reg [10:0] ADDR;
 wire COMPLETED;
-wire dout;
-wire readComplete;
+wire [1:0] dout;
+wire [1:0] readComplete;
 wire Qseq;
 
 initial begin 
@@ -52,7 +52,7 @@ blk_mem_gen_1 Q_sequence (
   .addra(ADDR),  // input wire [9 : 0] addra
   .douta(Qseq)  // output wire [0 : 0] douta
 );
-Polar_TopV2 Polar_TopV2_inst(
+SCL_TopV1 SCL_TopV1_inst(
     .sysclk(sysclk),
     .sysres(sysres),
     .LLR(LLR),
