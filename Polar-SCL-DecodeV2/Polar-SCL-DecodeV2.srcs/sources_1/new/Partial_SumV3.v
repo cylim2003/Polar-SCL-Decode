@@ -13,6 +13,10 @@ module Partial_SumV3#(
     input wire readEn,
     input wire writeEn,
     input wire COMPLETED,
+    input wire [31:0] pathInputdouta,
+    input wire [31:0] pathInputdoutb,
+    output wire [31:0] pathOutputdouta,
+    output wire [31:0] pathOutputdoutb,
     output reg isUpdating,
     output reg readComplete,
     output reg U_feedback

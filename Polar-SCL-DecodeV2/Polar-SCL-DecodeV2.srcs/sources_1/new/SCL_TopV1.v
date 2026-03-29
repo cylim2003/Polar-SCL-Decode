@@ -44,9 +44,19 @@ reg DELAY;
 reg [4:0] s_next;
 wire Qcheck;
 reg en_Q;
-reg [STAGES-1:0] RamPath[1:0];
-reg [STAGES-1:0] PSPath[1:0];
+// reg [STAGES-1:0] RamPath[1:0]; //
 
+reg [31:0] path_matrix [3:0];
+reg PathMother[1:0]; //save which mother path of current path
+reg [4:0] ipath[1:0]; //save i when path changed 
+wire [31:0] pathOutputdouta[1:0]; // cross module partialsum output for sharing info
+wire [31:0] pathOutputdoutb[1:0]; //
+reg [4:0] path_max_stage[1:0]; // to check which LLR to use (mother or current)
+
+
+wire [8:0] llr_abs[1:0];
+assign llr_abs[0] = (L_out[0][7]) ? -{L_out[0][7], L_out[0]} : {1'b0, L_out[0]}; 
+assign llr_abs[1] = (L_out[1][7]) ? -{L_out[1][7], L_out[1]} : {1'b0, L_out[1]}; 
 genvar z;
 generate
     for (z = 0; z < STAGES; z = z + 1) begin : RAM_GEN
@@ -122,6 +132,10 @@ always @(posedge sysclk or negedge sysres) begin
             tempU[x] <= 1'b0;
             L_a[x] <= 8'b0;
             L_b[x] <= 8'b0;
+            
+        end
+        for(x=0; x<= 3;x= x+1)begin
+            path_matrix[x] <= 32'b0;
         end
         writeEn <= 1'b0;
         readEn <= 1'b0;
@@ -170,6 +184,9 @@ always @(posedge sysclk or negedge sysres) begin
                             if(Qcheck == 1'b0) begin
                                 for (x = 0; x <= 1; x = x +1) begin
                                     tempU[x] <= 1'b0;
+                                    if(L_out[x] <0) begin
+                                        path_matrix[x] = path_matrix[x] + llr_abs[x];
+                                    end
                                 end
                             end
                             else begin
