@@ -4,6 +4,15 @@ module SCL_TopV1#(
     localparam S_IDLE = 2'd0,
     localparam S_WRITE = 2'd1,
     localparam S_READ = 2'd2,
+    localparam IDLE = 3'b0,
+    localparam READ = 3'b1,
+    localparam JUDGE = 3'd2,
+    localparam BSort = 3'd3,
+    localparam SoftCopy = 3'd4,
+    localparam PSupdate = 3'd5,
+    localparam Next = 3'd6,
+
+    // localparam  = 2'd2,
     localparam STAGES = 10,
     parameter N= 1024
 )(
@@ -53,10 +62,17 @@ wire [31:0] pathOutputdouta[1:0]; // cross module partialsum output for sharing 
 wire [31:0] pathOutputdoutb[1:0]; //
 reg [4:0] path_max_stage[1:0]; // to check which LLR to use (mother or current)
 
+reg BS_en;
+wire [1:0] index0;
+wire [1:0] index1;
+wire BS_Updating;
+
 
 wire [8:0] llr_abs[1:0];
 assign llr_abs[0] = (L_out[0][7]) ? -{L_out[0][7], L_out[0]} : {1'b0, L_out[0]}; 
 assign llr_abs[1] = (L_out[1][7]) ? -{L_out[1][7], L_out[1]} : {1'b0, L_out[1]}; 
+
+reg [2:0] STATE;
 genvar z;
 generate
     for (z = 0; z < STAGES; z = z + 1) begin : RAM_GEN
@@ -150,6 +166,8 @@ always @(posedge sysclk or negedge sysres) begin
         CONTROL_DELAY4 <= 2'b0;
         doneWriting <= 1'b0;
         en_Q <= 1'b1;
+        BS_en<= 1'b0;
+        STATE <= READ;
     end
     else if (COMPLETED == 1'b0) begin
         case (s)
@@ -175,74 +193,105 @@ always @(posedge sysclk or negedge sysres) begin
                 end
             end
             0: begin
-                if(CONTROL_DELAY4 == S_WRITE) begin // already done reading.. now update stagePS.
-                    if (isUpdating[0] == 1'b0 && isUpdating[1] == 1'b0 && writeEn == 1'b0 && doneWriting == 1'b0) begin
-                        readEn <= 1'b0;
-                        if (readEn == 1'b0) begin
-                            writeEn <= 1'b1;
-                            // U[i] <= (L_out < 0)?1'b1:1'b0;
-                            if(Qcheck == 1'b0) begin
-                                for (x = 0; x <= 1; x = x +1) begin
-                                    tempU[x] <= 1'b0;
-                                    if(L_out[x] <0) begin
-                                        path_matrix[x] = path_matrix[x] + llr_abs[x];
+                case (STATE)
+                    READ: begin
+                        if(CONTROL_DELAY2 == S_WRITE) begin //T0-> readPS T1 -> wait T2 -> Read LLr T3 wait T4 -> write LLR
+                            CONTROL[s+1] <= S_READ;
+                        end
+                        CONTROL_DELAY4 <= CONTROL_DELAY3;
+                        if (CONTROL_DELAY3 == S_WRITE) begin
+                            STATE <= JUDGE;
+                        end
+                        CONTROL_DELAY3 <= CONTROL_DELAY2;
+                        CONTROL_DELAY2 <= CONTROL_DELAY1;
+                        CONTROL_DELAY1 <= S_WRITE;
+                        doneWriting <=1'b0;
+                        // if (sel_g == 1'b1&& CONTROL_DELAY2 == S_READ) begin
+                        if (sel_g == 1'b1) begin
+                            readEn <= 1'b1;
+                        end
+                        else begin
+                            readEn <= 1'b0;
+                        end
+                        if(i+1 < N) begin
+                            for (k = 10; k >= 0; k = k - 1) begin
+                                if (!i[k]) begin 
+                                    s_next <= k;
+                                end
+                            end
+                        end
+                        else begin
+                            s_next <= 1'b1;
+                        end
+                        for (x = 0; x <= 1; x = x + 1 )begin 
+                            L_a[x] <= douta[s+1][x];
+                            L_b[x] <= doutb[s+1][x];
+                        end
+                    end
+                    JUDGE: begin
+                        if (isUpdating[0] == 1'b0 && isUpdating[1] == 1'b0 && writeEn == 1'b0 && doneWriting == 1'b0) begin
+                            readEn <= 1'b0;
+                            if (readEn == 1'b0) begin
+                                STATE <= BSort;
+                                BS_en <= 1'b1;
+                                // writeEn <= 1'b1;
+                                // U[i] <= (L_out < 0)?1'b1:1'b0;
+                                if(Qcheck == 1'b0) begin
+                                    for (x = 0; x <= 1; x = x +1) begin
+                                        tempU[x] <= 1'b0;
+                                        if(L_out[x] <0) begin
+                                            path_matrix[x] <= path_matrix[x] + llr_abs[x];
+                                            path_matrix[x+2] <= path_matrix[x+2] + llr_abs[x];
+                                        end
+                                    end
+                                end
+                                else begin
+                                    for (x = 0; x <= 1; x = x +1) begin
+                                        tempU[x] <= (L_out[x] < 0)?1'b1:1'b0;
+                                        path_matrix[x+2]<= path_matrix[x+2] + llr_abs[x];
                                     end
                                 end
                             end
-                            else begin
-                                for (x = 0; x <= 1; x = x +1) begin
-                                    tempU[x] <= (L_out[x] < 0)?1'b1:1'b0;
-                                end
-                            end
                         end
                     end
-                    else if (writeEn == 1'b1) begin
-                        writeEn <= 1'b0;
-                        doneWriting <= 1'b1;
-                    end
-                    else if (isUpdating[0]==1'b0 && isUpdating[1] == 1'b0 & doneWriting == 1'b1 )begin
-                        s<= s_next;
-                        i <= i+1'b1;
-                        CONTROL_DELAY1 <= S_IDLE;
-                        CONTROL_DELAY2 <= S_IDLE;
-                        CONTROL_DELAY3 <= S_IDLE;
-                        CONTROL_DELAY4 <= S_IDLE;
-                        doneWriting <= 1'b0;
-                    end
-                    CONTROL[1] <= S_IDLE;
-                end
-                else begin
-                    if(CONTROL_DELAY2 == S_WRITE) begin //T0-> readPS T1 -> wait T2 -> Read LLr T3 wait T4 -> write LLR
-                        CONTROL[s+1] <= S_READ;
-                    end
-                    CONTROL_DELAY4 <= CONTROL_DELAY3;
-                    CONTROL_DELAY3 <= CONTROL_DELAY2;
-                    CONTROL_DELAY2 <= CONTROL_DELAY1;
-                    CONTROL_DELAY1 <= S_WRITE;
-                    doneWriting <=1'b0;
-                    // if (sel_g == 1'b1&& CONTROL_DELAY2 == S_READ) begin
-                    if (sel_g == 1'b1) begin
-                        readEn <= 1'b1;
-                    end
-                    else begin
-                        readEn <= 1'b0;
-                    end
-                    if(i+1 < N) begin
-                        for (k = 10; k >= 0; k = k - 1) begin
-                            if (!i[k]) begin 
-                                s_next <= k;
+                    BSort: begin
+                        if(BS_en == 1'b1) begin
+                            if(i == 11'd1016) begin
+                                tempU[1] <= 1;
                             end
+                            BS_en <= 1'b0;
+                        end
+                        if (BS_en == 1'b0 && BS_Updating== 1'b0) begin
+                            writeEn <= 1'b1;
+                            STATE <= PSupdate;
                         end
                     end
-                    else begin
-                        s_next <= 1'b1;
+                    // SoftCopy: begin
+
+                    // end
+                    PSupdate: begin
+                        if (writeEn == 1'b1) begin
+                            writeEn <= 1'b0;
+                            doneWriting <= 1'b1;
+                        end
+                        else if (isUpdating[0]==1'b0 && isUpdating[1] == 1'b0 & doneWriting == 1'b1 )begin
+                            s<= s_next;
+                            i <= i+1'b1;
+                            CONTROL_DELAY1 <= S_IDLE;
+                            CONTROL_DELAY2 <= S_IDLE;
+                            CONTROL_DELAY3 <= S_IDLE;
+                            CONTROL_DELAY4 <= S_IDLE;
+                            doneWriting <= 1'b0;
+                            STATE <= READ;
+                        end
+                        CONTROL[1] <= S_IDLE;
                     end
-                    for (x = 0; x <= 1; x = x + 1 )begin
-                        L_a[x] <= douta[s+1][x];
-                        L_b[x] <= doutb[s+1][x];
-                    end
-                end
+                    // Next: begin
+
+                    // end
+                endcase
             end
+        
             default: begin
                 if(i== N) begin
                     COMPLETED <= 1'b1;
@@ -324,4 +373,16 @@ blk_mem_gen_1 Q_sequence (
   .douta(Qcheck)  // output wire [0 : 0] douta
 );
 
+BitonicSort BitonicSort_inst(
+    .sysclk(sysclk),
+    .sysres(sysres),
+    .BS_en(BS_en),
+    .path_matrix0(path_matrix[0]),
+    .path_matrix1(path_matrix[1]),
+    .path_matrix2(path_matrix[2]),
+    .path_matrix3(path_matrix[3]),
+    .index0(index0),
+    .index1(index1),
+    .BS_Updating(BS_Updating)
+    );
 endmodule
