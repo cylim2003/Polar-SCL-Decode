@@ -55,12 +55,25 @@ wire Qcheck;
 reg en_Q;
 // reg [STAGES-1:0] RamPath[1:0]; //
 
+reg [1:0] splitPath;
+
 reg [31:0] path_matrix [3:0];
-reg PathMother[1:0]; //save which mother path of current path
-reg [4:0] ipath[1:0]; //save i when path changed 
+reg PathMother[1:0]; //save current path's mother path 
+reg [10:0] ipath[1:0]; //save i when path changed 
+wire [31:0] pathInputdouta[1:0];
+wire [31:0] pathInputdoutb[1:0];
 wire [31:0] pathOutputdouta[1:0]; // cross module partialsum output for sharing info
 wire [31:0] pathOutputdoutb[1:0]; //
+wire [31:0] crossTempUOutput[1:0];
+wire [31:0] crossTempUInput[1:0];
 reg [4:0] path_max_stage[1:0]; // to check which LLR to use (mother or current)
+
+assign pathInputdouta[0] = pathOutputdouta[1];
+assign pathInputdoutb[0] = pathOutputdoutb[1];
+assign pathInputdouta[1] = pathOutputdouta[0];
+assign pathInputdoutb[1] = pathOutputdoutb[0];
+assign crossTempUInput[0] = crossTempUOutput[1];
+assign crossTempUInput[1] = crossTempUOutput[0];
 
 reg BS_en;
 wire [1:0] index0;
@@ -131,6 +144,13 @@ generate
             .readEn(readEn),
             .writeEn(writeEn),
             .COMPLETED(COMPLETED),
+            .ipath(ipath[t]),
+            .crossTempU(crossTempUInput[t]),
+            .pathInputdouta(pathInputdouta[t]),
+            .pathInputdoutb(pathInputdoutb[t]),
+            .pathOutputdouta(pathOutputdouta[t]),
+            .pathOutputdoutb(pathOutputdoutb[t]),
+            .tempU(crossTempUOutput[t]),
             .isUpdating(isUpdating[t]), 
             .readComplete(readComplete[t]),
             .U_feedback(U_feedback[t])
@@ -152,6 +172,7 @@ always @(posedge sysclk or negedge sysres) begin
         end
         for(x=0; x<= 3;x= x+1)begin
             path_matrix[x] <= 32'b0;
+            ipath[x] <= 1'b0;
         end
         writeEn <= 1'b0;
         readEn <= 1'b0;
@@ -168,6 +189,7 @@ always @(posedge sysclk or negedge sysres) begin
         en_Q <= 1'b1;
         BS_en<= 1'b0;
         STATE <= READ;
+        splitPath<= 1'b0;
     end
     else if (COMPLETED == 1'b0) begin
         case (s)
@@ -250,14 +272,24 @@ always @(posedge sysclk or negedge sysres) begin
                                         tempU[x] <= (L_out[x] < 0)?1'b1:1'b0;
                                         path_matrix[x+2]<= path_matrix[x+2] + llr_abs[x];
                                     end
+                                    if(splitPath == 1'b0) begin
+                                        path_matrix[1] <= path_matrix[1] + llr_abs[1];
+                                    end
                                 end
                             end
                         end
                     end
                     BSort: begin
                         if(BS_en == 1'b1) begin
-                            if(i == 11'd1016) begin
-                                tempU[1] <= 1;
+                            if(Qcheck == 1 && splitPath == 1'b0) begin
+                                ipath[1] <= i;
+                                tempU[1] <= ~tempU[0];
+                                splitPath <= 1'b1;
+                            end
+                            if(i==511 ) begin
+                                ipath[1] <= i;
+                                // tempU[0] <= ~tempU[0];
+                                tempU[1] <= ~tempU[0];
                             end
                             BS_en <= 1'b0;
                         end
@@ -267,7 +299,7 @@ always @(posedge sysclk or negedge sysres) begin
                         end
                     end
                     // SoftCopy: begin
-
+                        
                     // end
                     PSupdate: begin
                         if (writeEn == 1'b1) begin

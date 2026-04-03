@@ -13,10 +13,13 @@ module Partial_SumV3#(
     input wire readEn,
     input wire writeEn,
     input wire COMPLETED,
+    input wire [10:0] ipath,
+    input wire [31:0] crossTempU,
     input wire [31:0] pathInputdouta,
     input wire [31:0] pathInputdoutb,
     output wire [31:0] pathOutputdouta,
     output wire [31:0] pathOutputdoutb,
+    output reg [31:0] tempU,
     output reg isUpdating,
     output reg readComplete,
     output reg U_feedback
@@ -53,13 +56,12 @@ reg [STAGES-1:0] wea;
 reg [STAGES-1:0] web;
 // reg [31:0] dina;
 // reg [31:0] dinb;
-reg [31:0] tempU;
+// reg [31:0] tempU;
 reg [STAGES:0] count;
 reg [4:0] current_s;
 reg [10:0] i_count;
 reg [31:0] temp_douta; 
-reg [31:0] temp_doutb; 
-reg [31:0] temp_doutUp;
+reg [31:0] temp_doutb;
 reg [31:0] ramPageCount;
 reg [31:0] ramPageCountLow;
 reg [31:0] ramPageCountHigh;
@@ -73,11 +75,13 @@ wire [STAGES:0] readBASE;
 wire[5:0] ramPage; // 32 ramPage total;
 wire[5:0] readramPage;
 wire [4:0] offset; // 0-31
+wire[5:0] NonValidramPage; // 32 ramPage total;
 
 wire [STAGES:0] updateBase; 
 wire[5:0] updateRamPage;
 wire [4:0] updateOffset; //0-31 
 wire [5:0] updateRamPageOffset; //1-16 rampage total
+wire [5:0] stride;
 
 wire [31:0] douta [STAGES-1:0];
 wire [31:0] doutb [STAGES-1:0];
@@ -85,11 +89,15 @@ wire [31:0] doutb [STAGES-1:0];
 integer x;
 integer l;
 integer j;
+
 assign BASE = (i>>(s+1)<<(s+1));
 assign readBASE = (count>>(1)<<(1));
 assign ramPage = BASE[STAGES:5];
 assign readramPage = readBASE[STAGES:5];
 assign offset = BASE[4:0]; // 0-16
+assign stride = 5'b1 << current_s;
+
+assign NonValidramPage = ipath[STAGES:5];
 
 
 assign updateBase = (i>>(current_s+1)<<(current_s+1));
@@ -97,6 +105,8 @@ assign updateOffset = updateBase[4:0];
 assign updateRamPage = updateBase[STAGES:5];
 assign updateRamPageOffset = (current_s >= 5) ? (1 << (current_s-5)) : 1;
 
+assign pathOutputdouta = douta[current_s];
+assign pathOutputdoutb = doutb[current_s];
 
 always@(posedge sysclk or negedge sysres) begin
     if(sysres == 1'b0) begin
@@ -117,13 +127,13 @@ always@(posedge sysclk or negedge sysres) begin
         ramPageCount <= 1'b0;
         ramPageCountLow <= 1'b0;
         ramPageCountHigh <= 1'b0;
-        temp_doutUp <= 1'b0;
         i_count <= 1'b0;
         isUpdating <= 1'b0;
         updateDelay <= 1'b0;
         DELAY1 <= 1'b0;
         tempU <= 1'b0;
         readComplete <= 1'b0;
+        current_s <= 1'b0;
     end
 
     
@@ -135,7 +145,12 @@ always@(posedge sysclk or negedge sysres) begin
         DELAY1 <= 1'b1;
         if (count < ((1<<s))) begin
             stageAddrA[s] <= ramPage+ramPageCount;
-            temp_douta <= douta[s];
+            if(i < ipath) begin
+                temp_douta <= pathInputdouta;
+            end
+            else begin
+                temp_douta <= douta[s];
+            end
             if (count[4:0] == 5'd28) begin
                 ramPageCount <= ramPageCount + 1'b1;
             end
@@ -155,10 +170,13 @@ always@(posedge sysclk or negedge sysres) begin
     end
 
 
-    else if (writeEn == 1'b1) begin 
+    else if (writeEn == 1'b1) begin
+        if(i <= ipath) begin
+            tempU <= crossTempU;
+        end 
         count <= 1'b0;
         stageAddrA[0] <= ramPage;
-        tempU[i[4:0]] <= U_input;
+        // tempU[i[4:0]] <= U_input;
         wea <= 1'b0;
         web <= 1'b0;
         isUpdating <= 1'b1;
@@ -172,10 +190,11 @@ always@(posedge sysclk or negedge sysres) begin
     end
     else if (isUpdating == 1'b1 && writeEn == 1'b0) begin
         if (updateDelay == 1'b0) begin
-            wea<= 1'b1;
-            dina[0] <= tempU;
+            tempU[i[4:0]] <= U_input;
             DELAY1 <= 1'b1;
             if (DELAY1 == 1'b1) begin
+                dina[0] <= tempU;
+                wea<= 1'b1;     
                 updateDelay <= 1'b1;
                 DELAY1 <= 1'b0;
             end
@@ -192,26 +211,40 @@ always@(posedge sysclk or negedge sysres) begin
                 DELAY3 <= DELAY2;
                 DELAY2 <= DELAY1;
                 DELAY1 <= 1'b1;
-                // if(DELAY1 == 1'b1 && DELAY2 == 1'b0) begin
-                //     ramPageCountLow <= ramPageCountLow + 1'b1; 
-                // end
                 if(DELAY2 == 1'b1) begin
-                    temp_douta <= douta[current_s];
-                    temp_doutb <= doutb[current_s];
-                    if(current_s<5) begin
-                        dina[current_s+1] <= douta[current_s+1]; 
+                    // if(((updateRamPage + updateRamPageOffset +ramPageCountLow-1)< NonValidramPage)&&current_s>4) begin
+                    //     temp_doutb<= pathInputdoutb;
+                    // end
+                    // else begin
+                        temp_doutb <= doutb[current_s];
+                    // end
+                    if (((updateRamPage +ramPageCountLow-2) < NonValidramPage)&&current_s>4) begin
+                        temp_douta<= pathInputdouta;
                     end
-                    // ramPageCountLow <= ramPageCountLow + 1'b1; 
+                    else begin
+                        temp_douta <= douta[current_s];
+                    end
+                    // temp_doutb <= doutb[current_s];
+                    // temp_douta <= douta[current_s];
+                    if(current_s<5) begin
+                        // dina[current_s+1] <= douta[current_s+1]; 
+                        dina[current_s+1] <= 32'b0; 
+                    end
                 end
                 if(DELAY3 == 1'b1) begin    
                     if(current_s < 5) begin
                         wea <= (1'b1<<(current_s+1)); // check if 
                         web <= 1'b0;
-                        for (j=0; j<16; j = j+1'b1) begin
-                            if (j < (1 << current_s)) begin
-                                dina[current_s+1][updateOffset + j] <= temp_douta[updateOffset+j] ^ temp_douta[updateOffset + j + (1<<current_s)];
-                                dina[current_s+1][updateOffset + j + (1<<current_s)] <= temp_douta[updateOffset + j + (1<<current_s)];
+                        for (j=0; j<32; j = j+ (2*stride)) begin
+                            for(x=0; x < stride; x= x+1) begin
+                            // if (j < (1 << current_s)) begin
+                            // if (j < 16) begin
+                                // dina[current_s+1][updateOffset + j] <= temp_douta[updateOffset+j] ^ temp_douta[updateOffset + j + (1<<current_s)];
+                                // dina[current_s+1][updateOffset + j + (1<<current_s)] <= temp_douta[updateOffset + j + (1<<current_s)];
+                                    dina[current_s+1][x+j]                  <= temp_douta[x+j] ^ temp_douta[x+j+stride];
+                                    dina[current_s+1][x+j+stride] <= temp_douta[x+j+stride] ;
                             end
+                            // end
                         end
                     end
                     else begin
@@ -262,7 +295,12 @@ always@(posedge sysclk or negedge sysres) begin
             wea <= 1'b0;
             web <= 1'b0;
             stageAddrA[0] <= ramPageCount;
-            temp_douta <= douta[0];
+            if(count < ipath) begin
+                temp_douta <= pathInputdouta;
+            end
+            else begin
+                temp_douta <= douta[0];
+            end
             DELAY1 <= 1'b1;
             if (count[4:0] == 5'd28) begin
                 ramPageCount <= ramPageCount + 1'b1;
