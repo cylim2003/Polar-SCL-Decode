@@ -58,7 +58,7 @@ reg en_Q;
 reg [1:0] splitPath;
 
 reg [31:0] path_matrix [3:0];
-reg PathMother[1:0]; //save current path's mother path 
+reg [1:0] PathMother; //save current path's mother path 
 reg [10:0] ipath[1:0]; //save i when path changed 
 wire [31:0] pathInputdouta[1:0];
 wire [31:0] pathInputdoutb[1:0];
@@ -78,6 +78,7 @@ assign crossTempUInput[1] = crossTempUOutput[0];
 reg BS_en;
 wire [1:0] index0;
 wire [1:0] index1;
+reg [1:0] tempIndex[1:0];
 wire BS_Updating;
 
 
@@ -168,7 +169,8 @@ always @(posedge sysclk or negedge sysres) begin
             tempU[x] <= 1'b0;
             L_a[x] <= 8'b0;
             L_b[x] <= 8'b0;
-            
+            path_max_stage[x]<= 1'b0;
+            tempIndex[x] <= 2'b0+x;
         end
         for(x=0; x<= 3;x= x+1)begin
             path_matrix[x] <= 32'b0;
@@ -190,6 +192,7 @@ always @(posedge sysclk or negedge sysres) begin
         BS_en<= 1'b0;
         STATE <= READ;
         splitPath<= 1'b0;
+        PathMother <= 2'b0;
     end
     else if (COMPLETED == 1'b0) begin
         case (s)
@@ -205,6 +208,9 @@ always @(posedge sysclk or negedge sysres) begin
                     readEn <= 1'b0;
                     for (x = 0; x <= 1; x = x +1) begin
                         din[x] <= 8'd0;
+                        if (s > path_max_stage[x]) begin
+                            path_max_stage[x] <= s;
+                        end
                     end
                 end
                 else begin
@@ -258,10 +264,10 @@ always @(posedge sysclk or negedge sysres) begin
                                 BS_en <= 1'b1;
                                 // writeEn <= 1'b1;
                                 // U[i] <= (L_out < 0)?1'b1:1'b0;
-                                if(Qcheck == 1'b0) begin
+                                if(Qcheck == 1'b0) begin    //all pathmatrix penalty
                                     for (x = 0; x <= 1; x = x +1) begin
                                         tempU[x] <= 1'b0;
-                                        if(L_out[x] <0) begin
+                                        if(L_out[x] <0) begin 
                                             path_matrix[x] <= path_matrix[x] + llr_abs[x];
                                             path_matrix[x+2] <= path_matrix[x+2] + llr_abs[x];
                                         end
@@ -270,8 +276,10 @@ always @(posedge sysclk or negedge sysres) begin
                                 else begin
                                     for (x = 0; x <= 1; x = x +1) begin
                                         tempU[x] <= (L_out[x] < 0)?1'b1:1'b0;
-                                        path_matrix[x+2]<= path_matrix[x+2] + llr_abs[x];
+                                        path_matrix[x+2]<= path_matrix[x] + llr_abs[x];
                                     end
+                                    tempIndex[0] <= index0;
+                                    tempIndex[1] <= index1;
                                     if(splitPath == 1'b0) begin
                                         path_matrix[1] <= path_matrix[1] + llr_abs[1];
                                     end
@@ -284,23 +292,56 @@ always @(posedge sysclk or negedge sysres) begin
                             if(Qcheck == 1 && splitPath == 1'b0) begin
                                 ipath[1] <= i;
                                 tempU[1] <= ~tempU[0];
+                                path_max_stage[1] <= s;
+                                PathMother[1] <= 1'b0;
                                 splitPath <= 1'b1;
                             end
-                            if(i==511 ) begin
-                                ipath[1] <= i;
-                                // tempU[0] <= ~tempU[0];
-                                tempU[1] <= ~tempU[0];
-                            end
+                            // if(i==511 ) begin
+                            //     ipath[1] <= i;
+                            //     // tempU[0] <= ~tempU[0];
+                            //     path_max_stage[1] <= s;
+                            //     tempU[1] <= ~tempU[0];
+                            // end
+                            // if(i==912 ) begin
+                            //     ipath[1] <= i;
+                            //     // tempU[0] <= ~tempU[0];
+                            //     path_max_stage[1] <= s;
+                            //     tempU[1] <= tempU[0];
+                            // end
                             BS_en <= 1'b0;
                         end
                         if (BS_en == 1'b0 && BS_Updating== 1'b0) begin
-                            writeEn <= 1'b1;
-                            STATE <= PSupdate;
+                            if (Qcheck == 1'b1) begin
+                                STATE <= SoftCopy;   
+                            end
+                            else begin
+                                writeEn <= 1'b1;
+                                STATE<= PSupdate;
+                            end
+                            // if(splitPath <= 1'b1) begin
+                            //     STATE <= PSupdate;
+                            // end
+                            // else begin
+                            //     STATE <= SoftCopy;   
+                            // end
                         end
                     end
-                    // SoftCopy: begin
-                        
-                    // end
+                    SoftCopy: begin
+                        if(tempIndex[0] != 1'b0) begin
+                            ipath[0] <= i;
+                            path_matrix[0] <= path_matrix[index0];
+                            tempU[0] <= ~tempU[0]; 
+                            path_max_stage[0] <= s;
+                        end
+                        if(tempIndex[1]!= 1'b1) begin
+                            ipath[1] <= i;
+                            path_matrix[1] <= path_matrix[index1];
+                            tempU[1] <= ~tempU[(index1 - 2)]; //problem right here....
+                            path_max_stage[1] <= s;
+                        end
+                        writeEn <= 1'b1;
+                        STATE <= PSupdate;
+                    end
                     PSupdate: begin
                         if (writeEn == 1'b1) begin
                             writeEn <= 1'b0;
@@ -340,6 +381,9 @@ always @(posedge sysclk or negedge sysres) begin
                     CONTROL_DELAY4 <= S_IDLE;
                     for (x = 0; x <= 1; x = x +1) begin
                         din[x] <= 8'd0;
+                        if(s > path_max_stage[x])begin
+                            path_max_stage[x] <= s;
+                        end
                     end
                     s <= s-1'b1;
                     readEn <= 1'b0;
@@ -356,9 +400,16 @@ always @(posedge sysclk or negedge sysres) begin
                     else begin
                         readEn <= 1'b0;
                     end
+
                     for (x = 0; x <= 1; x = x + 1 )begin
-                        L_a[x] <= douta[s+1][x];
-                        L_b[x] <= doutb[s+1][x];
+                        if(path_max_stage[x] < s) begin
+                            L_a[x] <= douta[s+1][PathMother[x]];
+                            L_b[x] <= doutb[s+1][PathMother[x]];
+                        end
+                        else begin
+                            L_a[x] <= douta[s+1][x];
+                            L_b[x] <= doutb[s+1][x];
+                        end
                     end
                     for (x = 0; x <= 1; x = x +1) begin
                         din[x] <= L_out[x];
@@ -371,8 +422,6 @@ always @(posedge sysclk or negedge sysres) begin
                     doneWriting <= 1'b0;
                 end
             end
-
-
         endcase
     end
 end

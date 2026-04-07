@@ -35,15 +35,20 @@ always @(posedge sysclk or negedge sysres) begin
         DELAY1 <= 1'b0;
     end
     else if(DELAY1 == 1'b0 && BS_Updating == 1'b0) begin
-        path_matrix0 <= 31'd104;
-        path_matrix1 <= 31'd104;
-        path_matrix2 <= 31'd108;
-        path_matrix3 <= 31'd107;
+        // path_matrix0 <= 31'd104;
+        // path_matrix1 <= 31'd104;
+        // path_matrix2 <= 31'd108;
+        // path_matrix3 <= 31'd107;
+        path_matrix0 <= $random;
+        path_matrix1 <= $random;
+        path_matrix2 <= $random;
+        path_matrix3 <= $random;
         BS_en <= 1'b1; 
         DELAY1 <= 1'b1;
     end
-    else if (DELAY1 == 1'b1) begin
+    else if (DELAY1 == 1'b1 && BS_Updating == 1'b0) begin
         BS_en <= 1'b0;
+        DELAY1 <= 1'b0;
     end
     else begin
         BS_en <= 1'b0;

@@ -36,9 +36,33 @@ always @(posedge sysclk or negedge sysres) begin
     else if(BS_en == 1'b1) begin
         BS_Updating <=1'b1;
         if (count == 2'd0) begin
-            for (i =0; i < 3; i = i+2) begin
-                index[i] <= (path_matrix[i]>path_matrix[i+1])? i+1: i;
-                index[i+1] <= (path_matrix[i]>path_matrix[i+1])? i: i+1;
+            // for (i =0; i < 3; i = i+2) begin
+            //     if (path_matrix[i] > path_matrix[i+1]) begin
+            //             index[i] <= i+1;
+            //             index[i+1] <= i;
+            //     end
+            //     else begin
+            //         index[i] <= i;
+            //         index[i+1] <= i+1;
+            //     end
+            //     // index[i] <= (path_matrix[i]>path_matrix[i+1])? i+1: i;
+            //     // index[i+1] <= (path_matrix[i]>path_matrix[i+1])? i: i+1;
+            // end
+            if(path_matrix[0]>path_matrix[1]) begin
+                index[0] <= 1'b1;
+                index[1] <= 1'b0;
+            end
+            else begin
+                index[0] <= 1'b0;
+                index[1] <= 1'b1;
+            end
+            if(path_matrix[2]>path_matrix[3]) begin
+                index[2] <= 2'd2;
+                index[3] <= 2'd3;
+            end
+            else begin
+                index[2] <= 2'd3;
+                index[3] <= 2'd2;
             end
             count <= count+ 1'b1;
         end
@@ -48,7 +72,22 @@ always @(posedge sysclk or negedge sysres) begin
                 index[i] <= (path_matrix[index[i]]>path_matrix[index[i+2]])? index[i+2]: index[i];
                 index[i+2] <= (path_matrix[index[i]]>path_matrix[index[i+2]])? index[i]: index[i+2];
             end
+            // if(path_matrix[index[1]]>path_matrix[index[2]]) begin
+            //     index[1] <= index[2];
+            //     index[2] <= index[1];
+            // end
+
         count <= count +1'b1;
+    end
+    else if(BS_Updating == 1'b1 && count == 2'd2) begin
+            for (i =0; i < 3; i = i+2) begin
+                if (path_matrix[index[i]] > path_matrix[index[i+1]]) begin
+                    index[i] <= index[i+1];
+                    index[i+1] <= index[i];
+                end
+                // index[i] <= (path_matrix[index[i]]>path_matrix[index[i+1]])? index[i+1]: index[i];
+                // index[i+1] <= (path_matrix[index[i]]>path_matrix[index[i+1]])? index[i]: index[i+1];
+            end
         BS_Updating <= 1'b0;
     end
     // else if(count == 2'd2) begin
