@@ -251,10 +251,20 @@ always @(posedge sysclk or negedge sysres) begin
                         else begin
                             s_next <= 1'b1;
                         end
-                        for (x = 0; x <= 1; x = x + 1 )begin 
-                            L_a[x] <= douta[s+1][x];
-                            L_b[x] <= doutb[s+1][x];
+                        for (x = 0; x <= 1; x = x + 1 )begin
+                            if(path_max_stage[x] <= s) begin
+                                L_a[x] <= douta[s+1][PathMother[x]];
+                                L_b[x] <= doutb[s+1][PathMother[x]];
+                            end
+                            else begin
+                                L_a[x] <= douta[s+1][x];
+                                L_b[x] <= doutb[s+1][x];
+                            end
                         end
+                        // for (x = 0; x <= 1; x = x + 1 )begin 
+                        //     L_a[x] <= douta[s+1][x];
+                        //     L_b[x] <= doutb[s+1][x];
+                        // end
                     end
                     JUDGE: begin
                         if (isUpdating[0] == 1'b0 && isUpdating[1] == 1'b0 && writeEn == 1'b0 && doneWriting == 1'b0) begin
@@ -327,16 +337,18 @@ always @(posedge sysclk or negedge sysres) begin
                         end
                     end
                     SoftCopy: begin
-                        if(tempIndex[0] != 1'b0) begin
+                        if(index0 != 1'b0) begin
                             ipath[0] <= i;
                             path_matrix[0] <= path_matrix[index0];
                             tempU[0] <= ~tempU[0]; 
+                            PathMother[0]<= 1'b0;
                             path_max_stage[0] <= s;
                         end
-                        if(tempIndex[1]!= 1'b1) begin
+                        if(index1!= 1'b1) begin
                             ipath[1] <= i;
                             path_matrix[1] <= path_matrix[index1];
-                            tempU[1] <= ~tempU[(index1 - 2)]; //problem right here....
+                            tempU[1] <= ~tempU[1];
+                            PathMother[1]<= (index1-2);
                             path_max_stage[1] <= s;
                         end
                         writeEn <= 1'b1;
@@ -402,7 +414,7 @@ always @(posedge sysclk or negedge sysres) begin
                     end
 
                     for (x = 0; x <= 1; x = x + 1 )begin
-                        if(path_max_stage[x] < s) begin
+                        if(path_max_stage[x] <= s) begin
                             L_a[x] <= douta[s+1][PathMother[x]];
                             L_b[x] <= doutb[s+1][PathMother[x]];
                         end
@@ -427,14 +439,16 @@ always @(posedge sysclk or negedge sysres) begin
 end
 
 
-
+reg [10:0] outputCount;
 always @(posedge sysclk or negedge sysres) begin
     if (sysres == 1'b0) begin
         dout <= 1'b0;
         DELAY <= 1'b0;
+        outputCount<=1'b0;
     end
     else if (COMPLETED==1'b1 && readComplete[0] == 1'b0 && readComplete[1] == 1'b0) begin
         DELAY <= 1'b1;
+        outputCount <= outputCount +1'b1;
         if (DELAY == 1'b1) begin
             dout <= U_feedback;
         end
@@ -443,6 +457,7 @@ always @(posedge sysclk or negedge sysres) begin
         end
     end
     else begin
+        outputCount<= outputCount;
         dout<= 1'b0;
     end
 end

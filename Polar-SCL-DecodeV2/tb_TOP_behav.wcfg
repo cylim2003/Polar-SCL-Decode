@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0fs"></ZoomStartTime>
-      <ZoomEndTime time="1176000000001fs"></ZoomEndTime>
-      <Cursor1Time time="42350000000fs"></Cursor1Time>
+      <ZoomStartTime time="687294666000fs"></ZoomStartTime>
+      <ZoomEndTime time="687320116001fs"></ZoomEndTime>
+      <Cursor1Time time="687270000000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="216"></NameColumnWidth>
-      <ValueColumnWidth column_width="105"></ValueColumnWidth>
+      <ValueColumnWidth column_width="95"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="67" />
+   <WVObjectSize size="80" />
    <wvobject fp_name="/tb_TOP/sysclk" type="logic">
       <obj_property name="ElementShortName">sysclk</obj_property>
       <obj_property name="ObjectShortName">sysclk</obj_property>
@@ -43,6 +43,11 @@
    <wvobject fp_name="/tb_TOP/COMPLETED" type="logic">
       <obj_property name="ElementShortName">COMPLETED</obj_property>
       <obj_property name="ObjectShortName">COMPLETED</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/outputCount" type="array">
+      <obj_property name="ElementShortName">outputCount[10:0]</obj_property>
+      <obj_property name="ObjectShortName">outputCount[10:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_TOP/dout" type="array">
       <obj_property name="ElementShortName">dout[1:0]</obj_property>
@@ -70,11 +75,47 @@
       <obj_property name="ElementShortName">L_a[1:0][7:0]</obj_property>
       <obj_property name="ObjectShortName">L_a[1:0][7:0]</obj_property>
       <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/L_a[1]" type="array">
+         <obj_property name="ElementShortName">[1][7:0]</obj_property>
+         <obj_property name="ObjectShortName">[1][7:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/L_a[0]" type="array">
+         <obj_property name="ElementShortName">[0][7:0]</obj_property>
+         <obj_property name="ObjectShortName">[0][7:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
    </wvobject>
    <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/L_b" type="array">
       <obj_property name="ElementShortName">L_b[1:0][7:0]</obj_property>
       <obj_property name="ObjectShortName">L_b[1:0][7:0]</obj_property>
       <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/L_b[1]" type="array">
+         <obj_property name="ElementShortName">[1][7:0]</obj_property>
+         <obj_property name="ObjectShortName">[1][7:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/L_b[0]" type="array">
+         <obj_property name="ElementShortName">[0][7:0]</obj_property>
+         <obj_property name="ObjectShortName">[0][7:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/L_out" type="array">
+      <obj_property name="ElementShortName">L_out[1:0][7:0]</obj_property>
+      <obj_property name="ObjectShortName">L_out[1:0][7:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/L_out[1]" type="array">
+         <obj_property name="ElementShortName">[1][7:0]</obj_property>
+         <obj_property name="ObjectShortName">[1][7:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/L_out[0]" type="array">
+         <obj_property name="ElementShortName">[0][7:0]</obj_property>
+         <obj_property name="ObjectShortName">[0][7:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
    </wvobject>
    <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/sel_g" type="logic">
       <obj_property name="ElementShortName">sel_g</obj_property>
@@ -88,31 +129,34 @@
       <obj_property name="ElementShortName">DONE[0:10][1:0]</obj_property>
       <obj_property name="ObjectShortName">DONE[0:10][1:0]</obj_property>
    </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/path_max_stage" type="array">
+      <obj_property name="ElementShortName">path_max_stage[1:0][4:0]</obj_property>
+      <obj_property name="ObjectShortName">path_max_stage[1:0][4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/llr_abs" type="array">
+      <obj_property name="ElementShortName">llr_abs[1:0][8:0]</obj_property>
+      <obj_property name="ObjectShortName">llr_abs[1:0][8:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/llr_abs[1]" type="array">
+         <obj_property name="ElementShortName">[1][8:0]</obj_property>
+         <obj_property name="ObjectShortName">[1][8:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/llr_abs[0]" type="array">
+         <obj_property name="ElementShortName">[0][8:0]</obj_property>
+         <obj_property name="ObjectShortName">[0][8:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/Qcheck" type="logic">
+      <obj_property name="ElementShortName">Qcheck</obj_property>
+      <obj_property name="ObjectShortName">Qcheck</obj_property>
+   </wvobject>
    <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/path_matrix" type="array">
       <obj_property name="ElementShortName">path_matrix[3:0][31:0]</obj_property>
       <obj_property name="ObjectShortName">path_matrix[3:0][31:0]</obj_property>
       <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
-      <obj_property name="isExpanded"></obj_property>
-      <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/path_matrix[3]" type="array">
-         <obj_property name="ElementShortName">[3][31:0]</obj_property>
-         <obj_property name="ObjectShortName">[3][31:0]</obj_property>
-         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/path_matrix[2]" type="array">
-         <obj_property name="ElementShortName">[2][31:0]</obj_property>
-         <obj_property name="ObjectShortName">[2][31:0]</obj_property>
-         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/path_matrix[1]" type="array">
-         <obj_property name="ElementShortName">[1][31:0]</obj_property>
-         <obj_property name="ObjectShortName">[1][31:0]</obj_property>
-         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/path_matrix[0]" type="array">
-         <obj_property name="ElementShortName">[0][31:0]</obj_property>
-         <obj_property name="ObjectShortName">[0][31:0]</obj_property>
-         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
    </wvobject>
    <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/\PS_GEN[0].PartialSum_inst /isUpdating" type="logic">
       <obj_property name="ElementShortName">isUpdating</obj_property>
@@ -147,6 +191,10 @@
       <obj_property name="ObjectShortName">i[10:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/s" type="array">
+      <obj_property name="ElementShortName">s[4:0]</obj_property>
+      <obj_property name="ObjectShortName">s[4:0]</obj_property>
+   </wvobject>
    <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/\PS_GEN[1].PartialSum_inst /current_s" type="array">
       <obj_property name="ElementShortName">current_s[4:0]</obj_property>
       <obj_property name="ObjectShortName">current_s[4:0]</obj_property>
@@ -169,6 +217,10 @@
       <obj_property name="ElementShortName">index1[1:0]</obj_property>
       <obj_property name="ObjectShortName">index1[1:0]</obj_property>
    </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/PathMother" type="array">
+      <obj_property name="ElementShortName">PathMother[1:0]</obj_property>
+      <obj_property name="ObjectShortName">PathMother[1:0]</obj_property>
+   </wvobject>
    <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/tempIndex" type="array">
       <obj_property name="ElementShortName">tempIndex[1:0][1:0]</obj_property>
       <obj_property name="ObjectShortName">tempIndex[1:0][1:0]</obj_property>
@@ -176,6 +228,27 @@
    <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/path_matrix" type="array">
       <obj_property name="ElementShortName">path_matrix[3:0][31:0]</obj_property>
       <obj_property name="ObjectShortName">path_matrix[3:0][31:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/path_matrix[3]" type="array">
+         <obj_property name="ElementShortName">[3][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[3][31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/path_matrix[2]" type="array">
+         <obj_property name="ElementShortName">[2][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[2][31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/path_matrix[1]" type="array">
+         <obj_property name="ElementShortName">[1][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[1][31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/path_matrix[0]" type="array">
+         <obj_property name="ElementShortName">[0][31:0]</obj_property>
+         <obj_property name="ObjectShortName">[0][31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
    </wvobject>
    <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/\PS_GEN[1].PartialSum_inst /updateBase" type="array">
       <obj_property name="ElementShortName">updateBase[10:0]</obj_property>
@@ -231,6 +304,14 @@
    <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/\PS_GEN[1].PartialSum_inst /dina" type="array">
       <obj_property name="ElementShortName">dina[9:0][31:0]</obj_property>
       <obj_property name="ObjectShortName">dina[9:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/\PS_GEN[0].PartialSum_inst /tempU" type="array">
+      <obj_property name="ElementShortName">tempU[31:0]</obj_property>
+      <obj_property name="ObjectShortName">tempU[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/\PS_GEN[0].PartialSum_inst /U_input" type="logic">
+      <obj_property name="ElementShortName">U_input</obj_property>
+      <obj_property name="ObjectShortName">U_input</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/\PS_GEN[1].PartialSum_inst /dinb" type="array">
       <obj_property name="ElementShortName">dinb[9:0][31:0]</obj_property>
@@ -331,5 +412,25 @@
    <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/\PS_GEN[1].PartialSum_inst /ramPage" type="array">
       <obj_property name="ElementShortName">ramPage[5:0]</obj_property>
       <obj_property name="ObjectShortName">ramPage[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/\RAM_GEN[0].LLR_RAM_PATH_1 /RamStage0_inst/mem" type="array">
+      <obj_property name="ElementShortName">mem[1:0][7:0]</obj_property>
+      <obj_property name="ObjectShortName">mem[1:0][7:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/\RAM_GEN[0].LLR_RAM_PATH_2 /RamStage0_inst/mem" type="array">
+      <obj_property name="ElementShortName">mem[1:0][7:0]</obj_property>
+      <obj_property name="ObjectShortName">mem[1:0][7:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/\RAM_GEN[1].LLR_RAM_PATH_1 /RamStage0_inst/mem" type="array">
+      <obj_property name="ElementShortName">mem[3:0][7:0]</obj_property>
+      <obj_property name="ObjectShortName">mem[3:0][7:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_TOP/SCL_TopV1_inst/\RAM_GEN[1].LLR_RAM_PATH_2 /RamStage0_inst/mem" type="array">
+      <obj_property name="ElementShortName">mem[3:0][7:0]</obj_property>
+      <obj_property name="ObjectShortName">mem[3:0][7:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
    </wvobject>
 </wave_config>
