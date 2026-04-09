@@ -81,7 +81,7 @@ wire [STAGES:0] updateBase;
 wire[5:0] updateRamPage;
 wire [4:0] updateOffset; //0-31 
 wire [5:0] updateRamPageOffset; //1-16 rampage total
-wire [5:0] stride;
+wire [4:0] stride;
 
 wire [31:0] douta [STAGES-1:0];
 wire [31:0] doutb [STAGES-1:0];
@@ -235,16 +235,21 @@ always@(posedge sysclk or negedge sysres) begin
                     if(current_s < 5) begin
                         wea <= (1'b1<<(current_s+1)); // check if 
                         web <= 1'b0;
-                        for (j=0; j<32; j = j+ (2*stride)) begin
-                            for(x=0; x < stride; x= x+1) begin
-                            // if (j < (1 << current_s)) begin
-                            // if (j < 16) begin
-                                // dina[current_s+1][updateOffset + j] <= temp_douta[updateOffset+j] ^ temp_douta[updateOffset + j + (1<<current_s)];
-                                // dina[current_s+1][updateOffset + j + (1<<current_s)] <= temp_douta[updateOffset + j + (1<<current_s)];
-                                    dina[current_s+1][x+j]                  <= temp_douta[x+j] ^ temp_douta[x+j+stride];
-                                    dina[current_s+1][x+j+stride] <= temp_douta[x+j+stride] ;
+                        // for (j=0; j<32; j = j+ (2*stride)) begin
+                        //     for(x=0; x < stride; x= x+1) begin
+                        //         if ((x + j + stride) < 32) begin
+                        //             dina[current_s+1][x+j]        <= temp_douta[x+j] ^ temp_douta[x+j+stride];
+                        //             dina[current_s+1][x+j+stride] <= temp_douta[x+j+stride] ;
+                        //         end 
+                        //     end
+                        // end
+                        for (x = 0; x < 32; x = x + 1) begin
+                            if ((x & stride) == 0) begin
+                                dina[current_s+1][x] <= temp_douta[x] ^ temp_douta[x + stride];
+                            end 
+                            else begin
+                                dina[current_s+1][x] <= temp_douta[x];
                             end
-                            // end
                         end
                     end
                     else begin
